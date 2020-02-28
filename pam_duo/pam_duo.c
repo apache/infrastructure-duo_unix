@@ -121,6 +121,8 @@ pam_sm_authenticate(pam_handle_t *pamh, int pam_flags,
      */
     duopam_const char *ip, *service, *user;
     const char *cmd, *p, *config, *host;
+    // ASF hack: mix in hostname (whoami) with the command (cmd_extended)
+    char cmd_extended[256], whoami[1024];
 
     int i, flags, pam_err, matched;
 
@@ -197,6 +199,12 @@ pam_sm_authenticate(pam_handle_t *pamh, int pam_flags,
         flags |= DUO_FLAG_SYNC;
     } else if (strcmp(service, "sudo") == 0) {
         cmd = getenv("SUDO_COMMAND");
+        // ASF Hack: fetch local FQDN
+        whoami[1023] = '\0';
+        gethostname(whoami, 1023);
+        // ASF Hack: Add hostname to command run
+        snprintf(cmd_extended, 256, "%s (%s)", cmd, whoami);
+        cmd = (const char*) cmd_extended;
     } else if (strcmp(service, "su") == 0 || strcmp(service, "su-l") == 0) {
         /* Check calling user for Duo auth, just like sudo */
         if ((pw = getpwuid(getuid())) == NULL) {
