@@ -7,7 +7,7 @@ AC_PREREQ(2.65)
 
 # Package, version, bug report address
 AC_INIT([duo_unix],
-	[1.11.3],
+	[1.11.4],
 	[support@duosecurity.com])
 
 # Tells autoconf where to find necessary build scripts and macros.
@@ -46,13 +46,16 @@ AC_DEFINE_DIR([UNITY_VERSION], [unity_version], [Unity directory name])
 
 # Compiler options
 if test "x$GCC" = "xyes"; then
-   CFLAGS="$CFLAGS -Wall -D_FORTIFY_SOURCE=2"
+   CFLAGS="$CFLAGS -Wall -D_FORTIFY_SOURCE=2 -fPIE"
    AC_MSG_NOTICE([Adding gcc options: $CFLAGS])
 fi
 GGL_CHECK_STACK_PROTECTOR([has_stack_protector=yes], [has_stack_protector=no])
 IS_AIX=no
 # XXX - disable -fstack-protector due to missing libssp_nonshared
 case "$host_os" in
+    linux* | gnu* | k*bsd*-gnu)
+        CFLAGS="$CFLAGS -Wl,-z,relro,-z,now,--no-as-needed,-ldl"
+        ;;
     *aix*)
         AC_MSG_NOTICE([-fstack-protector disabled on AIX])
         has_stack_protector=no
@@ -179,10 +182,10 @@ AC_MSG_NOTICE([Using libdir "$libdir"])
 # Check for functions
 AC_CONFIG_LIBOBJ_DIR([compat])
 AC_CHECK_FUNCS([memcpy memset sysconf getaddrinfo open64 fopen64 explicit_bzero memset_s])
-AC_REPLACE_FUNCS([asprintf getgrouplist strlcpy vsyslog])
+AC_REPLACE_FUNCS([asprintf getgrouplist strlcpy vsyslog strnlen])
 AC_SEARCH_LIBS(inet_ntoa, nsl)
 AC_SEARCH_LIBS(socket, socket)
 
-AC_CONFIG_FILES(Makefile compat/Makefile lib/Makefile lib/libduo.pc login_duo/Makefile pam_duo/Makefile tests/Makefile tests/unity_tests/Makefile tests/unity_tests/Unity-2.4.3/Makefile)
+AC_CONFIG_FILES(Makefile compat/Makefile duo_unix_support/Makefile lib/Makefile lib/libduo.pc login_duo/Makefile pam_duo/Makefile tests/Makefile tests/unity_tests/Makefile tests/unity_tests/Unity-2.4.3/Makefile)
 
 AC_OUTPUT

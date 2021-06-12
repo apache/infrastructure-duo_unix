@@ -1,6 +1,10 @@
 Duo Unix
 ===
 [![Build Status](https://travis-ci.org/duosecurity/duo_unix.svg?branch=master)](https://travis-ci.org/duosecurity/duo_unix)
+[![Issues](https://img.shields.io/github/issues/duosecurity/duo_unix)](https://github.com/duosecurity/duo_unix/issues)
+[![Forks](https://img.shields.io/github/forks/duosecurity/duo_unix)](https://github.com/duosecurity/duo_unix/network/members)
+[![Stars](https://img.shields.io/github/stars/duosecurity/duo_unix)](https://github.com/duosecurity/duo_unix/stargazers)
+[![License](https://img.shields.io/badge/License-View%20License-orange)](https://github.com/duosecurity/duo_unix/blob/master/LICENSE)
 
 Duo two-factor authentication for Unix systems.
 
@@ -37,7 +41,7 @@ $ sudo yum install autoconf libtool pam-devel openssl-devel
 
 - RHEL 7 and CentOS 7 systems with SELinux enabled
 ```
-$ sudo yum install selinux-policy-devel
+$ sudo yum install selinux-policy-devel bzip2
 ```
 
 Clone the Duo Unix project down and enter the directory
@@ -128,6 +132,14 @@ Now in a separate terminal window
 $ ../login_duo/login_duo -d -c confs/mockduo.conf -f my_username echo "Success"
 ```
 This mock server can be a bit brittle so you may have to restart it if you start seeing very weird behavior.
+
+## Static analysis
+
+Install [cppcheck](http://cppcheck.sourceforge.net/)
+
+```
+$ cppcheck --quiet --force -i tests --suppressions-list=.false_positive.txt --error-exitcode=1 .
+```
 
 ## Deployment
 
