@@ -98,6 +98,8 @@ duo_common_ini_handler(struct duo_config *cfg, const char *section,
             fprintf(stderr, "Invalid failmode: '%s'\n", val);
             return (0);
         }
+    } else if (strcmp(name, "group_access_fail") == 0) {
+        cfg->group_access_fail = duo_set_boolean_option(val);
     } else if (strcmp(name, "pushinfo") == 0) {
         cfg->pushinfo = duo_set_boolean_option(val);
     } else if (strcmp(name, "noverify") == 0) {
