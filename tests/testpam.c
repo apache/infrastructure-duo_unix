@@ -103,7 +103,7 @@ main(int argc, char *argv[])
     if (argc > 2)
         host = argv[2];
 
-    if ((ret = pam_start("testpam", user, &conv, &pamh)) != PAM_SUCCESS) {
+    if ((ret = pam_start("test_duo_unix_service", user, &conv, &pamh)) != PAM_SUCCESS) {
                 die(pamh, ret);
     }
     if (host != NULL) {

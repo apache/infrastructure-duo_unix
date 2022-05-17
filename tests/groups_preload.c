@@ -10,6 +10,9 @@
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <dlfcn.h>
+
+FILE *(*_fopen)(const char* filename, const char* mode);
 
 static struct passwd _passwd[6] = {
         { "user1", "*", 1000, 1000, .pw_gecos = "gecos", .pw_dir = "/",
@@ -102,6 +105,20 @@ getgrent(void)
                 return (NULL);
         }
         return (&_groups[_group_ptr++]);
+}
+
+FILE *
+fopen(const char *filename, const char *mode)
+{
+    if (strcmp(filename, "/etc/motd") == 0) {
+        char *m = getenv("MOTD_FILE");
+        if(m) {
+            _fopen = dlsym(RTLD_NEXT, "fopen");
+            return (*_fopen)(m, mode);
+        }
+    }
+    _fopen = dlsym(RTLD_NEXT, "fopen");
+    return (*_fopen)(filename, mode);
 }
 
 int
