@@ -227,7 +227,8 @@ pam_sm_authenticate(pam_handle_t *pamh, int pam_flags,
         return (PAM_SERVICE_ERR);
     } else if (matched == 0) {
         if (cfg.group_access_fail) {
-          duo_syslog(LOG_INFO, "User %s not a member of an authorized UNIX group for Duo 2FA auth.", user);
+          /* suppress info notice for transparent fallthrough to another factor */
+          /* duo_syslog(LOG_INFO, "User %s not a member of an authorized UNIX group for Duo 2FA auth.", user); */
           close_config(&cfg);
           return (PAM_SERVICE_ERR);
         } else {
