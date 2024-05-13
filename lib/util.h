@@ -36,6 +36,7 @@ struct duo_config {
     int  groups_mode;
     int  failmode;  /* Duo failure handling: DUO_FAIL_* */
     int  pushinfo;
+    int  group_access_fail; /* boolean fail if not member of groups */
     int  noverify;
     int  autopush;
     int  motd; /* login_duo only */

@@ -124,6 +124,8 @@ pam_sm_authenticate(pam_handle_t *pamh, int pam_flags,
      */
     duopam_const char *ip, *service, *user;
     const char *cmd, *p, *config, *host;
+    // ASF hack: mix in hostname (whoami) with the command (cmd_extended)
+    char cmd_extended[256], whoami[128];
 
     int i, flags, pam_err, matched;
 
@@ -201,6 +203,12 @@ pam_sm_authenticate(pam_handle_t *pamh, int pam_flags,
         flags |= DUO_FLAG_SYNC;
     } else if (strcmp(service, "sudo") == 0) {
         cmd = getenv("SUDO_COMMAND");
+        // ASF Hack: fetch local FQDN
+        whoami[127] = '\0';
+        gethostname(whoami, 128);
+        // ASF Hack: Add hostname to command run
+        snprintf(cmd_extended, 256, "%s (%s)", whoami, cmd);
+        cmd = (const char*) cmd_extended;
     } else if (strcmp(service, "su") == 0 || strcmp(service, "su-l") == 0) {
         /* Check if target user is "root" */
         if(pw->pw_uid == 0) {
@@ -218,9 +226,15 @@ pam_sm_authenticate(pam_handle_t *pamh, int pam_flags,
         close_config(&cfg);
         return (PAM_SERVICE_ERR);
     } else if (matched == 0) {
-        duo_syslog(LOG_INFO, "User %s bypassed Duo 2FA due to user's UNIX group", user);
-        close_config(&cfg);
-        return (PAM_SUCCESS);
+        if (cfg.group_access_fail) {
+          duo_syslog(LOG_INFO, "User %s not a member of an authorized UNIX group for Duo 2FA auth.", user);
+          close_config(&cfg);
+          return (PAM_SERVICE_ERR);
+        } else {
+          duo_syslog(LOG_INFO, "User %s bypassed Duo 2FA due to user's UNIX group", user);
+          close_config(&cfg);
+          return (PAM_SUCCESS);
+        }
     }
 
     /* Use GECOS field if called for */
