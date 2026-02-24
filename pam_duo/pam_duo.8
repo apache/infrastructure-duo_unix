@@ -41,6 +41,9 @@ space-separated
 (see
 .Sx PATTERNS
 below).
+.It Cm group_access_fail
+If specified, fail Duo authentication if user is not a member of the
+groups specified in the groups parameter. Default is to bypass auth.
 .It Cm failmode
 On service or configuration errors that prevent Duo authentication, fail
 .Dq Li safe
